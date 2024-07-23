@@ -18,14 +18,14 @@ var validateCmd = &cobra.Command{
     Short: "Validate a license",
     Long:  "Validate a license using a public key.",
     Run: func(cmd *cobra.Command, args []string) {
-        publicKeyPath := viper.GetString("public_key")
+        publicKeyPath := viper.GetString("public-key")
         if publicKeyPath == "" {
-            log.Fatal("public_key is required")
+            log.Fatal("public-key is required")
         }
 
-        licenseKey := viper.GetString("license_key")
+        licenseKey := viper.GetString("license-key")
         if licenseKey == "" {
-            log.Fatal("license_key is required")
+            log.Fatal("license-key is required")
         }
 
         publicKey, err := loadPublicKey(publicKeyPath)
@@ -45,11 +45,11 @@ var validateCmd = &cobra.Command{
 func init() {
     rootCmd.AddCommand(validateCmd)
 
-    validateCmd.Flags().String("public_key", "", "Path to the public key file")
-    validateCmd.Flags().String("license_key", "", "License key to validate")
+    validateCmd.Flags().String("public-key", "", "Path to the public key file")
+    validateCmd.Flags().String("license-key", "", "License key to validate")
 
-    viper.BindPFlag("public_key", validateCmd.Flags().Lookup("public_key"))
-    viper.BindPFlag("license_key", validateCmd.Flags().Lookup("license_key"))
+    viper.BindPFlag("public-key", validateCmd.Flags().Lookup("public-key"))
+    viper.BindPFlag("license-key", validateCmd.Flags().Lookup("license-key"))
 }
 
 func loadPublicKey(path string) (*rsa.PublicKey, error) {

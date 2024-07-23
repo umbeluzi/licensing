@@ -19,9 +19,9 @@ var generateCmd = &cobra.Command{
     Short: "Generate a license",
     Long:  "Generate a license using a private key.",
     Run: func(cmd *cobra.Command, args []string) {
-        privateKeyPath := viper.GetString("private_key")
+        privateKeyPath := viper.GetString("private-key")
         if privateKeyPath == "" {
-            log.Fatal("private_key is required")
+            log.Fatal("private-key is required")
         }
 
         privateKey, err := loadPrivateKey(privateKeyPath)
@@ -32,7 +32,7 @@ var generateCmd = &cobra.Command{
         licenseData := licensing.License{
             ID:          viper.GetString("id"),
             Type:        viper.GetString("type"),
-            ExpiresAt:   viper.GetString("expires_at"),
+            ExpiresAt:   viper.GetString("expires-at"),
             IssuedAt:    time.Now().Format("2006-01-02"),
             Issuer:      viper.GetString("issuer"),
             Audience:    viper.GetStringSlice("audience"),
@@ -53,20 +53,20 @@ var generateCmd = &cobra.Command{
 func init() {
     rootCmd.AddCommand(generateCmd)
 
-    generateCmd.Flags().String("private_key", "", "Path to the private key file")
+    generateCmd.Flags().String("private-key", "", "Path to the private key file")
     generateCmd.Flags().String("id", "", "License ID")
     generateCmd.Flags().String("type", "", "License type")
-    generateCmd.Flags().String("expires_at", "", "License expiration date")
+    generateCmd.Flags().String("expires-at", "", "License expiration date")
     generateCmd.Flags().String("issuer", "", "License issuer")
     generateCmd.Flags().StringSlice("audience", []string{}, "License audience")
     generateCmd.Flags().StringSlice("features", []string{}, "License features")
     generateCmd.Flags().StringToString("restrictions", map[string]string{}, "License restrictions")
     generateCmd.Flags().StringToString("metadata", map[string]string{}, "License metadata")
 
-    viper.BindPFlag("private_key", generateCmd.Flags().Lookup("private_key"))
+    viper.BindPFlag("private-key", generateCmd.Flags().Lookup("private-key"))
     viper.BindPFlag("id", generateCmd.Flags().Lookup("id"))
     viper.BindPFlag("type", generateCmd.Flags().Lookup("type"))
-    viper.BindPFlag("expires_at", generateCmd.Flags().Lookup("expires_at"))
+    viper.BindPFlag("expires-at", generateCmd.Flags().Lookup("expires-at"))
     viper.BindPFlag("issuer", generateCmd.Flags().Lookup("issuer"))
     viper.BindPFlag("audience", generateCmd.Flags().Lookup("audience"))
     viper.BindPFlag("features", generateCmd.Flags().Lookup("features"))

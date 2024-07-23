@@ -4,8 +4,11 @@ import (
     "crypto/rand"
     "crypto/rsa"
     "crypto/sha256"
+    "crypto/x509"
     "encoding/base64"
+    "encoding/pem"
     "encoding/json"
+    "errors"
     "fmt"
 )
 
@@ -35,4 +38,18 @@ func Generate(privateKey *rsa.PrivateKey, data License) (string, error) {
 
     licenseKey := fmt.Sprintf("%s.%s", base64.StdEncoding.EncodeToString(dataJSON), base64.StdEncoding.EncodeToString(signature))
     return licenseKey, nil
+}
+
+func GenerateFromString(privateKeyPEM string, data License) (string, error) {
+    block, _ := pem.Decode([]byte(privateKeyPEM))
+    if block == nil || block.Type != "RSA PRIVATE KEY" {
+        return "", errors.New("failed to decode PEM block containing private key")
+    }
+
+    privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+    if err != nil {
+        return "", err
+    }
+
+    return Generate(privateKey, data)
 }

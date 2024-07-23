@@ -23,7 +23,7 @@ The `License` struct includes the following fields:
 
 ## Getting Started
 
-To run the project, navigate to the `cmd/licensing` directory and run the following command:
+To run the project, navigate to the `cmd/licensectl` directory and run the following command:
 
 ```sh
 go run main.go
@@ -71,6 +71,8 @@ package main
 import (
     "crypto/rand"
     "crypto/rsa"
+    "crypto/x509"
+    "encoding/pem"
     "fmt"
     "time"
 
@@ -101,7 +103,12 @@ func main() {
         Metadata:    map[string]string{"version": "1.0"},
     }
 
-    licenseKey, err := licensing.Generate(privateKey, licenseData)
+    privateKeyPEM := pem.EncodeToMemory(&pem.Block{
+        Type:  "RSA PRIVATE KEY",
+        Bytes: x509.MarshalPKCS1PrivateKey(privateKey),
+    })
+
+    licenseKey, err := licensing.GenerateFromString(string(privateKeyPEM), licenseData)
     if err != nil {
         fmt.Printf("Error generating license: %v\n", err)
         return
@@ -110,7 +117,12 @@ func main() {
     fmt.Printf("Generated License: %s\n", licenseKey)
 
     // Validate the license
-    validLicenseData, err := licensing.Validate(publicKey, licenseKey)
+    publicKeyPEM := pem.EncodeToMemory(&pem.Block{
+        Type:  "PUBLIC KEY",
+        Bytes: x509.MarshalPKIXPublicKey(publicKey),
+    })
+
+    validLicenseData, err := licensing.ValidateFromString(string(publicKeyPEM), licenseKey)
     if err != nil {
         fmt.Printf("Error validating license: %v\n", err)
         return
@@ -134,4 +146,4 @@ func main() {
 
 ## License
 
-This project is licensed under the terms of the [MPL-2.0](../LICENSE).
+This project is licensed under the terms of the [Apache 2.0](LICENSE).

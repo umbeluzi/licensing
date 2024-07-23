@@ -3,7 +3,9 @@ package licensing
 import (
     "crypto/rsa"
     "crypto/sha256"
+    "crypto/x509"
     "encoding/base64"
+    "encoding/pem"
     "encoding/json"
     "errors"
     "strings"
@@ -46,4 +48,23 @@ func Validate(publicKey *rsa.PublicKey, licenseKey string) (License, error) {
     }
 
     return data, nil
+}
+
+func ValidateFromString(publicKeyPEM string, licenseKey string) (License, error) {
+    block, _ := pem.Decode([]byte(publicKeyPEM))
+    if block == nil || block.Type != "PUBLIC KEY" {
+        return License{}, errors.New("failed to decode PEM block containing public key")
+    }
+
+    pub, err := x509.ParsePKIXPublicKey(block.Bytes)
+    if err != nil {
+        return License{}, err
+    }
+
+    rsaPub, ok := pub.(*rsa.PublicKey)
+    if !ok {
+        return License{}, errors.New("not an RSA public key")
+    }
+
+    return Validate(rsaPub, licenseKey)
 }
